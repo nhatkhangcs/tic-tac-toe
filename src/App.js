@@ -1,25 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+const gameBoard = document.querySelector("#gameboard")
+const infoDisplay = document.querySelector("#info")
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const startCells = [
+  "", "", "", "", "", "", "", "", ""
+]
+
+let go = 'circle'
+infoDisplay.textContent = 'Circle goes first'
+
+function createBoard() {
+  startCells.forEach((_cell, index) => {
+    const cellElement = document.createElement('div')
+    cellElement.classList.add('square')
+    cellElement.id = index
+    cellElement.addEventListener('click', addGo)
+    gameBoard.append(cellElement)
+  })
 }
 
-export default App;
+createBoard()
+
+function addGo(e) {
+  const goDisplay = document.createElement('div')
+  goDisplay.classList.add(go)
+  e.target.append(goDisplay)
+  go = go === "circle" ? "cross" : "circle"
+  infoDisplay.textContent = "It is now " + go + "'s go."
+  e.target.removeEventListener('click', addGo)
+  checkScore()
+}
+
+function checkScore() {
+  const allSquare = document.querySelectorAll('.square')
+
+  const winningCombos = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ]
+
+  console.log(allSquare[0])
+
+  winningCombos.forEach(array => {
+    let letCircleWins = array.every(cell =>
+      allSquare[cell].firstChild?.classList.contains('circle'))
+
+    if (letCircleWins) {
+      infoDisplay.textContent = "Circle wins!"
+      allSquare.forEach(square => square.replaceWith(square.cloneNode(true)))
+      return
+    }
+  })
+
+  winningCombos.forEach(array => {
+    let letCrossWins = array.every(cell =>
+      allSquare[cell].firstChild?.classList.contains('cross'))
+
+    if (letCrossWins) {
+      infoDisplay.textContent = "Cross wins!"
+      allSquare.forEach(square => square.replaceWith(square.cloneNode(true)))
+      return
+    }
+  })
+}
